@@ -1,59 +1,106 @@
 <script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+	import { vocab } from './vocabData.js';
+
+	import Flashcard from './Flashcard.svelte';
+
+	let flashcardIndex = 0;
+	$: clue = vocab[flashcardIndex].image;
+	$: answer = vocab[flashcardIndex].word;
+
+	let showCardBack = false;
+	const toggleShowBack = () => showCardBack = !showCardBack;
+
+	const prevCard = () => {
+		showCardBack = false;
+		if (flashcardIndex === 0) {
+			flashcardIndex = vocab.length-1;
+		} else {
+			flashcardIndex -= 1;
+		}
+	}
+
+	const nextCard = () => {
+		showCardBack = false;
+		if (flashcardIndex === vocab.length-1) {
+			flashcardIndex = 0;
+		} else {
+			flashcardIndex += 1;
+		}
+	}
 </script>
 
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
-</svelte:head>
+<main>
+	<!-- FLASHCARD -->
+	<div class="flip-box">
+		<div class="flip-box-inner" class:flip-it={showCardBack}>
+			<Flashcard {clue}
+					   {answer}
+					   {showCardBack}
+			/>
+		</div>
+	</div>
 
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
+	<!-- BUTTONS -->
+	<div id="btn-cont">
+		<button class="arrow-btn" on:click={prevCard}>&#8592;</button>
 
-		to your new<br />SvelteKit app
-	</h1>
+		<button on:click={toggleShowBack}>
+			{showCardBack ? "Hide Answer" : "Show Answer"}
+		</button>
 
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
+		<button class="arrow-btn" on:click={nextCard}>&#8594;</button>
+	</div>
+</main>
 
-	<Counter />
-</section>
 
 <style>
-	section {
+	main {
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
 		align-items: center;
-		flex: 0.6;
+		margin-top: 15%;
+		height: 100vh;
 	}
 
-	h1 {
-		width: 100%;
+	/* The flip box container - set the width and height to whatever you want. We have added the border property to demonstrate that the flip itself goes out of the box on hover (remove perspective if you don't want the 3D effect */
+	.flip-box {
+		background-color: transparent;
+		width: 400px;
+		height: 300px;
+		/* 		border: 1px solid #ddd; */
+		perspective: 1000px; /* Remove this if you don't want the 3D effect */
 	}
 
-	.welcome {
-		display: block;
+	/* This container is needed to position the front and back side */
+	.flip-box-inner {
 		position: relative;
 		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
+		height: 100%;
+		text-align: center;
+		transition: transform 0.4s;
+		transform-style: preserve-3d;
 	}
 
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+	/* Do an horizontal flip on button click */
+	.flip-it {
+		transform: rotateY(180deg);
+	}
+
+	#btn-cont {
+		width: 200px;
+		padding: 10px 0;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	button {
+		background-color: 	hsl(65, 6%, 40%);
+		padding: 10px 10px;
+		color: white;
+		cursor: pointer;
+	}
+
+	button:active {
+		background-color: hsl(50, 65%, 25%);
 	}
 </style>
